@@ -10,7 +10,7 @@
     // constants
 	active = 'ui-state-active',
 	hover = 'ui-state-hover',
-	disabled = 'ui-state-disabled',
+	key = 'ui-state-disabled',
 
 	keyCode = $.ui.keyCode,
 	up = keyCode.UP,
@@ -21,15 +21,18 @@
 	pageDown = keyCode.PAGE_DOWN,
 	home = keyCode.HOME,
 	end = keyCode.END,
+    decimal = keyCode.NUMPAD_DECIMAL,
+    tab = keyCode.TAB,
+    comma = keyCode.COMMA,
 
-	msie = $.browser.msie,
+    msie = $.browser.msie,
 	mouseWheelEventName = $.browser.mozilla ? 'DOMMouseScroll' : 'mousewheel',
 
     // namespace for events on input
 	eventNamespace = '.uispinner',
 
     // only these special keys will be accepted, all others will be ignored unless CTRL or ALT are pressed
-	validKeys = [up, down, right, left, pageUp, pageDown, home, end, keyCode.BACKSPACE, keyCode.DELETE, keyCode.TAB],
+	validKeys = [up, down, right, left, pageUp, pageDown, home, end, keyCode.BACKSPACE, keyCode.DELETE, keyCode.TAB, decimal],
 
     // stores the currently focused spinner
     // Note: due to oddities in the focus/blur events, this is part of a two-part system for confirming focus
@@ -219,35 +222,36 @@
             input.bind('keydown' + eventNamespace, function (e) {
                 var dir, large, limit,
 						keyCode = e.keyCode; // shortcut for minimization
-                if (e.ctrlKey || e.altKey || keyCode == 9) return true; // ignore these events
+                if (e.ctrlKey || e.altKey || keyCode == tab) return true; // ignore these events
 
                 if (isSpecialKey(keyCode))
                     inSpecialKey = true;
 
                 if (inKeyDown) return false; // only one direction at a time, and suppress invalid keys
 
-                if (e.shiftKey)
-                    e.preventDefault();
-                if (keyCode == 46 || keyCode == 8) {
-                }
-                else {
-                    if (keyCode < 95) {
+                if(!isSpecialKey) {
+                    if(e.shiftKey)
+                        e.preventDefault();
+                    if (keyCode == 46 || keyCode == 8) {
+                    }
+                    else {
+                        if (keyCode < 95) {
 
-                        if (keyCode < 48 || keyCode > 57) {
-                            if (keyCode >= 37 && keyCode <= 40) {
+                            if (keyCode < 48 || keyCode > 57) {
+                                if (keyCode >= 37 && keyCode <= 40) {
+                                }
+                                else {
+                                    e.preventDefault();
+                                }
                             }
-                            else {
+                        }
+                        else {
+                            if (keyCode < 96 || keyCode > 105) {
                                 e.preventDefault();
                             }
                         }
                     }
-                    else {
-                        if (keyCode < 96 || keyCode > 105) {
-                            e.preventDefault();
-                        }
-                    }
                 }
-                
                 switch (keyCode) {
                     case up:
                     case pageUp:
@@ -292,7 +296,7 @@
             })
 
 			.bind('keyup' + eventNamespace, function (e) {
-			    if (e.ctrl || e.alt) return true; // ignore these events
+			    if (e.ctrlKey || e.altKey) return true; // ignore these events
 
 			    if (isSpecialKey(keyCode))
 			        inSpecialKey = false;
